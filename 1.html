@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Эллипс</title>
+   <script>
+			function elip() {
+				var a = document.getElementById('a').value;
+				var b = document.getElementById('b').value;
+				if (((a == 0) && (b < 0))||((a < 0) && (b == 0))){
+				console.log('Число не может быть отрицательным или нулём!');;
+				}else{
+					if ((a == 0) || (b == 0)){
+						console.log('Число не может быть нулём!');
+					}else{
+						if ((a < 0) || (b < 0)){
+							console.log('Введено отрицательное число!');
+						}else{
+							if ((a > 0) || (b > 0)){
+								console.log('Площадь эллипса: ' +(a * b * Math.PI));
+								document.getElementById("result").innerHTML = (a * b * Math.PI);
+							}
+						}	
+					}
+				}
+			}
+   </script>
+</head>
+<body>
+	<form>
+		 Длина большой полуоси (a):<input id="a" type="number"><br>
+		 Длина малой полуоси (b):<input id="b" type="number"><br>
+		 Площадь эллипса: <output id="result">0</output>
+	</form>
+	<button onClick="elip()">Посчитать площадь</button>
+</body>
+</html>
