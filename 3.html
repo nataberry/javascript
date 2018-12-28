@@ -18,9 +18,9 @@
 		<script type="text/javascript">
 		var matrixDoc = document.getElementById('matrixDoc')
 		document.getElementById('ordering').addEventListener('click', () => {
-		var matrix = [[],[],[],[],[],[],[]]
-		for(let row = 0; row < 7; row++) {
-		for(let cell = 0; cell < 9; cell++) {
+		var matrix = [[],[],[],[],[],[],[],[],[]]
+		for(let row = 0; row < 9; row++) {
+		for(let cell = 0; cell < 7; cell++) {
 		matrix[row].push(parseFloat(matrixDoc.rows[row].cells[cell].innerHTML))
 		}
 		}
@@ -29,8 +29,8 @@
 		var l1
 		var x1
 
-		for(let row = 0; row < 8; row++) {
-		for(let cell = 0; cell < 8; cell++) {
+		for(let row = 0; row < 9; row++) {
+		for(let cell = 0; cell < 7; cell++) {
 		if (Math.abs(matrix[row][cell]) > max){
 		max = Math.abs(matrix[row][cell])
 		l1 = row
