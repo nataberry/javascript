@@ -6,22 +6,20 @@
 </head>
 <body>
 	<form id="fact">
-		Введите значение x: <input id="x" type="number"></input>
+		Введите значение x: <input type="number"></input>
 		<input type="submit" value="Рассчитать"></input>
 	</form>
 	<script type="text/javascript">
-	var factorial = (n) => n ? n * factorial(n - 1) : 1
-	function eX(x) {
-
-	var x1 = x
-	var e = 1
-	for (var i = 1; i <= x1; i++){
-	e = e + x/factorial(i)
-	x = x*x1
-	}
-	return e
-	}
-
+		var factorial = (n) => n ? n * factorial(n - 1) : 1
+		function eX(x) {
+			var x1 = x
+			var e = 1
+			for (var i = 1; i <= x1; i++){
+				e = e + x/factorial(i)
+				x = x*x1
+			}
+			return e
+			}
 	document.getElementById('fact').addEventListener('submit', function(e){
 	console.log(eX(parseFloat(e.target[0].value)))
 	e.preventDefault()
