@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>animals</title>
+</head>
+<body>
+	<script type="text/javascript">
+
+		const m = [
+			{
+				text: 'Животные',
+				childs: [
+					{
+						text: 'Млекопитающие',
+						childs: [
+							'Коровы',
+							'Ослы',
+							'Собаки',
+							'Тигры'
+						]
+					},
+					{
+						text: 'Другие',
+						childs: [
+							'Змеи',
+							'Птицы',
+							'Ящерицы'
+						]
+					}
+				]
+			},
+			{
+				text: 'Рыбы',
+				childs: [
+					{
+						text: 'Аквариумные',
+						childs: [
+							'Гуппи',
+							'Скалярии'
+						]
+					},
+					{
+						text: 'Морские',
+						childs: [
+							'Морская форель'
+						]
+					}
+				]
+			}
+		]
+
+		function list(childs) {
+			
+			var ul = document.createElement('ul')
+			for (var a of childs) {
+				var li = document.createElement('li')
+				if (a.text !== undefined) 
+					li.append(a.text)
+				if (typeof a !== 'object')
+					li.append(a)
+				else if (a.childs !== undefined) 
+					li.append(list(a.childs))
+				ul.append(li)
+			}
+			return ul
+		}
+		document.body.append(list(m))
+
+
+		function run_element(element) {
+			if (element.childNodes === undefined) return
+			for (var node of element.childNodes) {
+				console.log(node.nodeName, node.nodeType, node.nodeValue)
+				run_element(node)
+			}
+		}
+		run_element(document)
+	</script>
+</body>
+</html>
