@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>animalsjq</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+	<script type="text/javascript">
+		const m = [
+			{
+				text: 'Животные',
+				childs: [
+					{
+						text: 'Млекопитающие',
+						childs: [
+							'Коровы',
+							'Ослы',
+							'Собаки',
+							'Тигры'
+						]
+					},
+					{
+						text: 'Другие',
+						childs: [
+							'Змеи',
+							'Птицы',
+							'Ящерицы'
+						]
+					}
+				]
+			},
+			{
+				text: 'Рыбы',
+				childs: [
+					{
+						text: 'Аквариумные',
+						childs: [
+							'Гуппи',
+							'Скалярии'
+						]
+					},
+					{
+						text: 'Морские',
+						childs: [
+							'Морская форель'
+						]
+					}
+				]
+			}
+		]		
+		function child(childs) 
+		{
+			var ul = $('<ul/>')
+			
+			for (var elm of childs) 
+			{
+				var li = $('<li/>')
+				if (elm.text !== undefined) 
+					li.append(elm.text)
+				if (typeof elm !== 'object')
+					li.append(elm)
+				else if (elm.childs !== undefined) 
+					li.append(child(elm.childs))
+				li.on('click', 
+				function(a) 
+				{
+					a.preventDefault()
+					$(this.firstElementChild).slideToggle()
+					console.log(this.firstChild.data, $(this).find("li").length)
+					return false
+				})
+				ul.append(li)
+			}
+			return ul
+		}
+		$("body").append(child(m))
+	</script>
+</body>
+</html>
