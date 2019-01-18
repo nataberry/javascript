@@ -1,0 +1,258 @@
+<html>
+<head>
+	<title>Canvas & Mootools</title>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mootools/1.6.0/mootools-core.js"></script>
+	<script type="text/javascript">
+		var canvas, ctx, figures, idTimer, mode=-1, movement, lastMode;
+		const maxSize = 100;
+		
+		TFigure = new Class({
+			initialize: function(pX, pY, movement) {
+				this.posX = pX; 
+				this.posY = pY; 
+				if (mode==4){ 
+					this.vector = getRandomInt(4)
+				} else {
+					this.vector = movement;
+				}
+				
+				
+				this.colFig = 'rgb('+Math.floor(Math.random()*256)+','
+				+Math.floor(Math.random()*256)+','+Math.floor(Math.random()*256)+')';
+				
+				this.size = 10+Math.random()*20;
+			},
+			
+			
+			posX: 0,
+			posY: 0,
+			size: 0,
+			colFig:"rgb(0,0,0)",
+			vector: -1,
+			
+			colorFigure: function(ctx){
+				// формируем градиентную заливку для шарика
+				with (this){
+					var gradient = ctx.createRadialGradient(posX+size/8,
+					posY-size/12, size/16, posX, posY, size);
+					gradient.addColorStop(0, '#fff');
+					gradient.addColorStop(0.85, colFig);
+					return gradient;
+				}
+			},
+		})
+		
+		TBall = new Class({
+			Extends: TFigure, 
+			draw : function(ctx){
+				// рисуем шарик на canvas
+				with (this){
+					ctx.fillStyle = colorFigure(ctx);
+					ctx.beginPath();
+					ctx.arc(posX, posY, size / 2, 0, 2*Math.PI, false);
+					ctx.closePath();
+					ctx.fill();
+				}
+			},
+		});
+		
+		TSquare = new Class({
+			Extends: TFigure,
+			draw : function(ctx){
+				// рисуем квадрат на canvas
+				with (this){
+					ctx.fillStyle = colorFigure(ctx);
+					ctx.beginPath();
+					ctx.moveTo(posX - size / 2, posY - size / 2)
+					ctx.lineTo(posX + size / 2, posY - size / 2)
+					ctx.lineTo(posX + size / 2, posY + size / 2)
+					ctx.lineTo(posX - size / 2, posY + size / 2)
+					ctx.lineTo(posX - size / 2, posY - size / 2)
+					ctx.closePath();
+					ctx.fill();
+				}
+			},
+		});
+		
+		TStar = new Class({
+			Extends: TFigure,
+			draw : function(ctx){
+				// рисуем звезду на canvas
+				with (this){
+					ctx.fillStyle = colorFigure(ctx); 
+					ctx.beginPath(); 
+					ctx.moveTo(posX, posY + size/2) 
+					for (var i = 0; i < 12; i++){
+						if (i % 2 == 0){ 
+							ctx.lineTo(posX + (size / 5 * Math.sin(Math.PI / 180 * 30 * (i + 1))), posY + (size / 5 * Math.cos(Math.PI / 180 * 30 * (i + 1))))
+						} else { 
+							ctx.lineTo(posX + (size / 2 * Math.sin(Math.PI / 180 * 30 * (i + 1))), posY + (size / 2 * Math.cos(Math.PI / 180 * 30 * (i + 1))))
+						}
+					}
+					ctx.closePath(); 
+					ctx.fill(); 
+				}
+			},
+		});
+		
+		function drawBack(ctx,col1,col2,w,h){
+			// закрашиваем канвас градиентным фоном
+			ctx.save();
+			var g = ctx.createLinearGradient(0,0,0,h);
+			g.addColorStop(1,col1);
+			g.addColorStop(0,col2);
+			ctx.fillStyle = g;
+			ctx.fillRect(0,0,w,h);
+			ctx.restore();
+		}
+		
+		function getRandomInt(max) { 
+			return Math.floor(Math.random() * Math.floor(max));
+		} // число от нуля до максимума
+		
+		function intersection(){ //столкновение фигур 
+		    var collision = false
+			for (var i = 0; i < figures.length; i){
+				for (var j = 0; j < figures.length; j){
+					if (i != j){ //не твои самопересекались фигуры чтобы
+						if ((figures[j] instanceof TSquare) || (figures[i] instanceof TSquare)){ 
+							if ((Math.abs(figures[i].posX - figures[j].posX) < ((figures[i].size + figures[j].size) / 2)) &&
+								(Math.abs(figures[i].posY - figures[j].posY) < ((figures[i].size + figures[j].size) / 2))){
+								collision = true;
+							}
+						} //Иначе проверяем как 2 круга
+						var delta = Math.sqrt(Math.abs(Math.pow((figures[i].posX - figures[j].posX), 2) + 
+												   Math.pow((figures[i].posY - figures[j].posY), 2))) 
+						if (delta < (figures[i].size + figures[j].size) / 2){
+							collision = true;
+						}
+						if (collision){ //Если касаются - удаляем
+							figures.splice(j, 1)
+							figures.splice(i, 1)
+							collision = false
+							break
+						} else {
+							j++
+						}
+					}
+					else
+						j++
+				}
+				i++
+			}
+		}
+		
+		function growthFigures(){ 
+			drawBack(ctx,'#ce42f4','#8f41f4',canvas.width,canvas.height);
+			for (var i = 0; i < figures.length; i){
+				figures[i].draw(ctx);
+				figures[i].size = figures[i].size + 0.1
+				if (figures[i].size > maxSize){
+					figures.splice(i, 1) 
+				} else {
+					i++ 
+				}
+				
+			}
+		}
+		
+		// инициализация работы
+		function init(){
+			canvas = document.getElementById('canvas');
+			if (canvas.getContext){
+				ctx = canvas.getContext('2d');
+				drawBack(ctx,'#ce42f4','#8f41f4',canvas.width,canvas.height);
+				//создаем 10 шариков, заноси их в массив и выводим на canvas
+				figures = [];
+				for (var i = 1; i<=10;i++){
+					var item = new TBall(10+Math.random()*(canvas.width-30),
+					10+Math.random()*(canvas.height-30), -1); 
+					item.draw(ctx);
+					figures.push(item);
+				}
+				
+			}
+			expandTimer = setInterval("growthFigures()", 10)
+			colTimer = setInterval("intersection()", 10)
+		}
+		// создаем новый шарик по щелчку мыши
+		function goInput(event){
+			var x = event.clientX;
+			var y = event.clientY;
+			var chance = Math.random() //- [0;1)
+			if (chance < 0.3){			//рандомная фигура
+				var item = new TBall(x,y, mode);
+			} else if (chance > 0.6){
+				var item = new TStar(x,y, mode);
+			} else {
+				var item = new TSquare(x,y, mode);
+			}
+			
+			item.draw(ctx);
+			figures.push(item);
+		}
+		
+		function moveBall(){
+			//реализация движения шариков, находящихся в массиве figures
+			for (var i = 0; i < figures.length;i){
+				if (mode == 5){
+					figures[i].vector = getRandomInt(4)
+				} else if (mode != 4){
+					figures[i].vector = mode
+				}
+			
+				switch(figures[i].vector){ 
+					case 0:
+						figures[i].posX = figures[i].posX
+						figures[i].posY = figures[i].posY - 1
+						break
+					case 1:
+						figures[i].posX = figures[i].posX
+						figures[i].posY = figures[i].posY + 1
+						break
+					case 2:
+						figures[i].posX = figures[i].posX - 1
+						figures[i].posY = figures[i].posY
+						break
+					case 3:
+						figures[i].posX = figures[i].posX + 1
+						figures[i].posY = figures[i].posY
+						break
+						
+				}
+				if ((figures[i].posX > canvas.width)||(figures[i].posX < 0) ||(figures[i].posY < 0) || (figures[i].posY > canvas.height)) {
+					figures.splice(i,1); //запредельная проверка - не вышел ли шар за рамки канваса
+				}
+				else 
+					i++;
+			}
+		}
+		
+		function move(movement){
+			mode = movement 
+			if (mode == 4){
+				for(var i = 0; i < figures.length; i++){
+					figures[i].vector = getRandomInt(4)
+				}
+			}
+			
+			clearInterval(idTimer)
+			idTimer = setInterval('moveBall();',10); 
+		}
+		
+	</script>
+	</head>
+<body onload="init();">
+	<canvas id="canvas" width="700" height="500" onclick="goInput(event);">
+	</canvas>
+	<form>
+		<input type = "button" value = "Вверх" onclick="move(0)">
+		<input type = "button" value = "Вниз" onclick="move(1)">
+		<input type = "button" value = "Влево" onclick="move(2)">
+		<input type = "button" value = "Вправо" onclick="move(3)">
+		<input type = "button" value = "Рандом" onclick="move(4)">
+		<input type = "button" value = "Хаос" onclick="move(5)">
+		<input type = "button" value = "Стоп" onclick="clearInterval(idTimer);">
+	</form>
+</body>
+</html>
